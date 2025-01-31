@@ -16,4 +16,8 @@ Route::post('/login', [AuthController::class, 'loginPost'])->name('login.post');
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/akun', [AuthController::class, 'akun'])->name('akun');
+    Route::get('/akun/show/{id}', [AuthController::class, 'show'])->name('user.show');
+    Route::post('/akun/{id}', [AuthController::class, 'update'])->name('user.update');
+    Route::delete('/akun/{id}', [AuthController::class, 'destroy'])->name('user.destroy');
 });

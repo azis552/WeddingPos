@@ -70,4 +70,11 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Logout Berhasil');
     }
 
+    public function akun()
+    {
+        $title = 'Data User';
+        $users = User::paginate(10);
+        return view('dataUser.index', compact('users', 'title'));
+    }
+
 }

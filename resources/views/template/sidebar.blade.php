@@ -9,8 +9,8 @@
                         Dashboard
                     </a>
                     <div class="sb-sidenav-menu-heading">Data Master</div>
-                    <a class="nav-link" href="{{ route('dashboard') }}">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <a class="nav-link" href="{{ route('akun') }}">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-user-gear"></i></div>
                         Akun
                     </a>
                     <a class="nav-link" href="{{ route('dashboard') }}">
@@ -35,3 +35,11 @@
             </div>
         </nav>
     </div>
+    <div id="layoutSidenav_content">
+                
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">{{ $title }}</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item active">{{ $title }}</li>
+                </ol>
