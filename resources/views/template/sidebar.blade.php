@@ -13,7 +13,7 @@
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-user-gear"></i></div>
                         Akun
                     </a>
-                    <a class="nav-link" href="{{ route('dashboard') }}">
+                    <a class="nav-link" href="{{ route('barang.index') }}">
                         <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                         Barang
                     </a>

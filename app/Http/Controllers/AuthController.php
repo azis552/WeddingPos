@@ -19,6 +19,17 @@ class AuthController extends Controller
         return view('register');
     }
 
+    public function update(Request $request, $id)   
+    {
+        $user = User::find($id);
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+        return redirect()->route('akun')->with('success', 'Data Berhasil Diubah');
+    }
+
     public function RegisterPost(Request $request)
     {
         $validate = $request->validate([
@@ -44,6 +55,34 @@ class AuthController extends Controller
         else
         {
             return redirect()->route('register')->with('error', 'Register Gagal');
+        }
+    }
+
+    public function AddUser(Request $request)
+    {
+        $validate = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'password' => 'required|min:8|confirmed',
+            'password_confirmation' => 'required',
+        ]);
+
+        $simpan = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+        
+        if ($simpan) 
+        {
+            Profil::create([
+                'users_id' => $simpan->id
+            ]);
+            return redirect()->route('akun')->with('success', 'Register Berhasil');
+        }
+        else
+        {
+            return redirect()->route('akun')->with('error', 'Register Gagal');
         }
     }
 
@@ -73,8 +112,24 @@ class AuthController extends Controller
     public function akun()
     {
         $title = 'Data User';
-        $users = User::paginate(10);
+        $users = User::all();
         return view('dataUser.index', compact('users', 'title'));
+    }
+
+    public function destroy($id)
+    {
+        $user = User::find($id);
+        $user->delete();
+        return redirect()->route('akun')->with('success', 'Data Berhasil Dihapus');
+    }
+
+    public function updateRole(Request $request, $id)
+    {
+        $user = User::find($id);
+        $user->update([
+            'role' => $request->role
+        ]);
+        return response()->json(['success' => 'Data Berhasil Diubah']);
     }
 
 }
