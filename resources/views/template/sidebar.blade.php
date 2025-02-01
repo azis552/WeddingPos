@@ -18,6 +18,14 @@
                         Barang
                     </a>
                     <div class="sb-sidenav-menu-heading">Transaksi</div>
+                    <a class="nav-link" href="{{ route('listBarang')}}">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        List Barang
+                    </a>
+                    <a class="nav-link" href="{{ route('keranjang')}}">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        Keranjang
+                    </a>
                     <a class="nav-link" href="charts.html">
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         Daftar Transaksi

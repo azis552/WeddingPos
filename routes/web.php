@@ -32,4 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/barang',[BarangController::class, 'store'])->name('barang.store');
     Route::PUT('/barang/{id}', [BarangController::class, 'update'])->name('barang.update');
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
+
+    // 
+
+    Route::get('/listBarang', [BarangController::class, 'ListBarang'])->name('listBarang');
+    Route::get('/listBarang/{id}', [BarangController::class, 'show'])->name('listBarang.show');
+    Route::get('keranjang', [BarangController::class, 'keranjang'])->name('keranjang');
 });

@@ -210,29 +210,6 @@
                    
                 });
 
-                $('.roleSwitch').on('change', function() {
-                    var id = $(this).data('id');
-                    var isChecked = $(this).is(':checked');
-                    var role = isChecked ? 'admin' : 'user';
-                    var badge = $(this).next('.badge');
-                    $.ajax({
-                        url: '{{ route('user.updateRole', ':id') }}/'.replace(':id', id),
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        },
-                        type: 'PUT',
-                        data: {
-                            role: role
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                badge.text(role);
-                                badge.removeClass('bg-danger bg-success');
-                                badge.addClass('bg-' + (role == 'admin' ? 'success' : 'danger'));
-                            }
-                        }
-                    });
-                })
             });
         </script>
     @endsection

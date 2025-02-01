@@ -84,4 +84,11 @@ class BarangController extends Controller
         $barang->delete();
         return redirect()->route('barang.index')->with('success', 'Data Berhasil Dihapus');
     }
+
+    public function ListBarang()
+    {
+        $title = 'List Barang';
+        $barangs = Barang::all();
+        return view('listBarang.index', compact('barangs', 'title'));
+    }
 }
