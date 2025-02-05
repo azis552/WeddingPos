@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('transaksis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('users_id')->constrained('users')->onDelete('cascade');
-            $table->date('tanggal');
-            $table->string('total');
-            $table->string('status');
-            $table->string('metode_pembayaran');
-            $table->string('bukti_pembayaran');
-            $table->string('status_pembayaran');
-            $table->date('tanggal_pemasangan');
-            $table->date('tanggal_pelepasan');
-            $table->string('catatan');
+            $table->date('tanggal')->nullable();
+            $table->string('total')->nullable();
+            $table->enum('status',['keranjang','proses','selesai'])->default('keranjang');
+            $table->string('metode_pembayaran')->nullable();
+            $table->string('bukti_pembayaran')->nullable();
+            $table->string('status_pembayaran')->nullable();
+            $table->date('tanggal_pemasangan')->nullable();
+            $table->date('tanggal_pelepasan')->nullable();
+            $table->string('catatan')->nullable();
             $table->timestamps();
         });
     }

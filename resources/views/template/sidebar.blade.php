@@ -22,9 +22,13 @@
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         List Barang
                     </a>
-                    <a class="nav-link" href="{{ route('keranjang')}}">
+                    <a class="nav-link" href="{{ route('keranjang.index')}}">
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         Keranjang
+                    </a>
+                    <a class="nav-link" href="{{ route('transaksiSaya.index')}}">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        Transaksi Saya
                     </a>
                     <a class="nav-link" href="charts.html">
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>

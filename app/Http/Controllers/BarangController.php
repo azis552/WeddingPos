@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
 {
@@ -88,6 +89,13 @@ class BarangController extends Controller
     public function ListBarang()
     {
         $title = 'List Barang';
+        // $barangs = DB::table('barangs')
+        //     ->leftjoin('detail_transaksis', 'barangs.id', '=', 'detail_transaksis.barangs_id')
+        //     ->leftJoin('transaksis', 'detail_transaksis.transaksis_id', '=', 'transaksis.id')
+        //     ->leftjoin('users', 'transaksis.users_id', '=', 'users.id')
+        //     ->select('barangs.*', 'detail_transaksis.jumlah')
+        //     ->get();
+
         $barangs = Barang::all();
         return view('listBarang.index', compact('barangs', 'title'));
     }

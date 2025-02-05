@@ -3,7 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TransaksiController;
 use App\Models\Barang;
+use App\Models\Transaksi;
 use Illuminate\Support\Facades\Route;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -38,4 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/listBarang', [BarangController::class, 'ListBarang'])->name('listBarang');
     Route::get('/listBarang/{id}', [BarangController::class, 'show'])->name('listBarang.show');
     Route::get('keranjang', [BarangController::class, 'keranjang'])->name('keranjang');
+    Route::post('/keranjang', [TransaksiController::class, 'keranjangStore'])->name('keranjang.store');
+    Route::get('keranjang/list', [TransaksiController::class, 'keranjangIndex'])->name('keranjang.index');
+    Route::delete('/keranjang/{id}', [TransaksiController::class, 'hapusKeranjang'])->name('keranjang.destroy');
+    Route::get('/transaksi', [TransaksiController::class, 'transaksiSaya'])->name('transaksiSaya.index');
+    Route::post('/checkout', [TransaksiController::class, 'checkout'])->name('checkout');
 });

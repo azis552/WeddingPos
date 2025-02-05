@@ -24,8 +24,8 @@
                 @foreach ($barangs as $barang)
                     <div class="col mt-2">
                         <div class="card p-3" style="width: 18rem; ">
-                            <img src="{{ asset('storage/images/' . $barang->foto) }}" 
-                                class="card-img-top" alt="{{ $barang->foto }}" style=" width: 13rem; height: 13rem; align-self: center; ">
+                            <img src="{{ asset('storage/images/' . $barang->foto) }}" class="card-img-top"
+                                alt="{{ $barang->foto }}" style=" width: 13rem; height: 13rem; align-self: center; ">
                             <div class="card-body ">
                                 <h5 class="card-title">{{ $barang->name }}</h5>
                                 <p class="card-text">{{ $barang->deskripsi }}</p>
@@ -36,10 +36,21 @@
                                 <li class="list-group-item">Stok: {{ $barang->stok }}</li>
                             </ul>
                             <div class="input-group mt-2">
-                                <button class="btn btn-warning btnMinus" id=""><i class="fa-solid fa-minus"></i></button>
-                                <button class="btn btn-success btnPlus" id=""><i class="fa-solid fa-plus"></i></button>
-                                <input type="text" readonly id="" value="0" class="form-control qty" value="1">
-                                <button class="btn btn-warning keranjang" id=""><i class="fa-solid fa-cart-plus"></i></button>
+                                <button class="btn btn-warning btnMinus" id=""><i
+                                        class="fa-solid fa-minus"></i></button>
+                                <button class="btn btn-success btnPlus" id=""><i
+                                        class="fa-solid fa-plus"></i></button>
+                                <input type="text" readonly id="" class="form-control qty"
+                                    @php
+                                        $detailTransaksi = $barang->detailTransaksi->filter(fn($detail) => $detail->transaksi && $detail->transaksi->users_id == Auth::user()->id && $detail->transaksi->status == 'keranjang')->first(); 
+                                    @endphp
+                                    @if ($detailTransaksi) 
+                                        value = "{{ $detailTransaksi->jumlah }}"
+                                    @else
+                                        value = "0" 
+                                    @endif>
+                                <button class="btn btn-warning keranjang" id="" data-id="{{ $barang->id }}"><i
+                                        class="fa-solid fa-cart-plus"></i></button>
                                 {{-- <button class="btn btn-success" id="transaksi"><i class="fa-solid fa-cash-register"></i></button> --}}
                             </div>
 
@@ -89,6 +100,30 @@
                     modal.find('#fotoEdit').attr('src', "{{ asset('storage/images/') }}/" + foto);
 
                 });
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                $('.keranjang').on('click', function() {
+                    var qty = $(this).closest('.input-group').find('.qty');
+                    var id = $(this).data('id');
+                    if (qty.val() == 0) {
+                        alert('qty tidak boleh kosong');
+                        return false;
+                    }
+                    $.ajax({
+                        url: "{{ route('keranjang.store') }}",
+                        method: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id_barang: id,
+                            qty: qty.val()
+                        },
+                        success: function(response) {
+                            alert(response.message);
+                        }
+                    })
+                })
             });
         </script>
     @endsection
