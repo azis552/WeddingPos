@@ -44,5 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::get('keranjang/list', [TransaksiController::class, 'keranjangIndex'])->name('keranjang.index');
     Route::delete('/keranjang/{id}', [TransaksiController::class, 'hapusKeranjang'])->name('keranjang.destroy');
     Route::get('/transaksi', [TransaksiController::class, 'transaksiSaya'])->name('transaksiSaya.index');
+    Route::put('/transaksi/{id}', [TransaksiController::class, 'batalTransaksi'])->name('batalTransaksi');
+    Route::get('/detailTransaksi/{id}', [TransaksiController::class, 'detailTransaksi'])->name('detailTransaksi');
     Route::post('/checkout', [TransaksiController::class, 'checkout'])->name('checkout');
+    Route::get('/daftarTransaksi', [TransaksiController::class, 'daftarTransaksi'])->name('daftarTransaksi');
 });

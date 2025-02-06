@@ -30,7 +30,7 @@
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         Transaksi Saya
                     </a>
-                    <a class="nav-link" href="charts.html">
+                    <a class="nav-link" href="{{ route('daftarTransaksi')}}">
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         Daftar Transaksi
                     </a>

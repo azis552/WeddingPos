@@ -20,9 +20,9 @@
     {{-- end modal --}}
     <div class="card border-0 shadow">
         <div class="card-body">
-            <div class="row m-3">
+            <div class="row d-flex justify-content-start m-3">
                 @foreach ($barangs as $barang)
-                    <div class="col mt-2">
+                    <div class="col-auto mt-2">
                         <div class="card p-3" style="width: 18rem; ">
                             <img src="{{ asset('storage/images/' . $barang->foto) }}" class="card-img-top"
                                 alt="{{ $barang->foto }}" style=" width: 13rem; height: 13rem; align-self: center; ">

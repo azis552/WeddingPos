@@ -74,13 +74,12 @@ class TransaksiController extends Controller
     {
         $detailTransaksi = DetailTransaksi::find($id);
         $detailTransaksi->delete();
-        $detailTransaksi->transaksi->delete();
         return redirect()->route('keranjang.index')->with('success', 'Data Berhasil Dihapus');
     }
     public function transaksiSaya()
     {
         $title = 'Transaksi Saya';
-        $transaksis = Transaksi::where('users_id', Auth::user()->id)->where('status', '!=', 'keranjang')->get();
+        $transaksis = Transaksi::where('users_id', Auth::user()->id)->where('status', '!=', 'keranjang')->orderBy('created_at', 'desc')->get();
         return view('transaksi.index', compact('transaksis', 'title'));
     }
 
@@ -95,6 +94,9 @@ class TransaksiController extends Controller
                 'total' => $total,
                 'harga' => $harga,
             ]);
+            $detail->barang->update([
+                'stok' => $detail->barang->stok - $detail->jumlah,
+            ]);
         }
 
         $detailTransaksi = DetailTransaksi::where('transaksis_id', $request->id_transaksi)->sum('total');
@@ -107,5 +109,27 @@ class TransaksiController extends Controller
         return response()->json(['message' => 'Checkout Berhasil']);
 
 
+    }
+
+    public function batalTransaksi($id)
+    {
+        $transaksi = Transaksi::find($id);
+        $transaksi->update([
+            'status' => 'batal'
+        ]);
+        return response()->json(['message' => 'Transaksi Berhasil Dibatal']);
+    }
+
+    public function daftarTransaksi()
+    {
+        $title = 'Daftar Transaksi';
+        $transaksis = Transaksi::where('status', '!=', 'keranjang')->orderBy('created_at', 'desc')->get();
+        return view('transaksiSemua.index', compact('transaksis', 'title'));
+    }
+
+    public function detailTransaksi($id)
+    {
+        $detailTransaksi = DetailTransaksi::with('barang')->where('transaksis_id', $id)->get();
+        return response()->json($detailTransaksi);
     }
 }
