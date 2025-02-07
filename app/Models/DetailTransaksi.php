@@ -17,4 +17,6 @@ class DetailTransaksi extends Model
     {
         return $this->belongsTo(Transaksi::class, 'transaksis_id');
     }
+
+    
 }

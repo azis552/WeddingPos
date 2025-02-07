@@ -129,7 +129,32 @@ class TransaksiController extends Controller
 
     public function detailTransaksi($id)
     {
-        $detailTransaksi = DetailTransaksi::with('barang')->where('transaksis_id', $id)->get();
+        $detailTransaksi = DetailTransaksi::with('barang', 'transaksi.user')->where('transaksis_id', $id)->get();
         return response()->json($detailTransaksi);
+    }
+
+    public function bayarTransaksi(Request $request)
+    {
+        $validate = $request->validate([
+            'bukti_pembayaran' => 'required',
+            'metode_pembayaran' => 'required',
+            'catatan' => 'required',
+            'tanggal_pemasangan' => 'required',
+            'tanggal_pelepasan' => 'required',
+        ]);
+        $transaksi = Transaksi::find($request->id);
+        $bukti_pembayaran = $request->file('bukti_pembayaran');
+        $nama_bukti_pembayaran = time() . '.' . $bukti_pembayaran->getClientOriginalExtension();
+        $upload = $bukti_pembayaran->move(public_path('storage/images'), $nama_bukti_pembayaran);
+        $transaksi->update([
+            'status' => 'lunas',
+            'bukti_pembayaran' => $nama_bukti_pembayaran,
+            'metode_pembayaran' => $request->metode_pembayaran,
+            'status_pembayaran' => 'lunas',
+            'tanggal_pemasangan' => date('Y-m-d'),
+            'tanggal_pelepasan' => date('Y-m-d'),
+            'catatan' => $request->catatan
+        ]);
+        return redirect()->route('daftarTransaksi')->with('success', 'Transaksi Berhasil Dibayar');
     }
 }

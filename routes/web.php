@@ -48,4 +48,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/detailTransaksi/{id}', [TransaksiController::class, 'detailTransaksi'])->name('detailTransaksi');
     Route::post('/checkout', [TransaksiController::class, 'checkout'])->name('checkout');
     Route::get('/daftarTransaksi', [TransaksiController::class, 'daftarTransaksi'])->name('daftarTransaksi');
+    Route::post('/bayarTransaksi', [TransaksiController::class, 'bayarTransaksi'])->name('transaksi.bayar');
 });
