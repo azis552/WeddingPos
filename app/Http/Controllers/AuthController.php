@@ -132,4 +132,37 @@ class AuthController extends Controller
         return response()->json(['success' => 'Data Berhasil Diubah']);
     }
 
+    public function profile()
+    {
+        $title = 'Profil';
+        $profil = Profil::with('user')->where('users_id', Auth::user()->id)->first();
+        return view('dataUser.profil', compact('profil', 'title'));
+    }
+
+    public function updateProfil(Request $request, $id)
+    {
+        $profil = Profil::where('users_id', $id)->first();
+        $profil->update([
+            'name' => $request->nama_lengkap,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'alamat' => $request->alamat,
+            'nomor_hp' => $request->nomor_hp
+        ]);
+
+        $foto = $request->file('foto');
+        $nama_foto = time() . '.' . $foto->getClientOriginalExtension();
+        $upload = $foto->move(public_path('storage/images'), $nama_foto);
+        if ($upload) 
+        {
+            $profil->update([
+                'foto' => $nama_foto,
+            ]);
+            return redirect()->route('profil')->with('success', 'Data Berhasil Diubah');
+        }
+        else
+        {
+            return redirect()->route('profil')->with('error', 'Data Gagal Diubah');
+        }
+    }
+
 }
