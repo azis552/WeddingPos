@@ -83,27 +83,6 @@
         </script>
         <script>
             $(document).ready(function() {
-                $('#updateForm').on('show.bs.modal', function(event) {
-                    var button = $(event.relatedTarget);
-                    var id = button.data('id');
-                    var name = button.data('name');
-                    var harga = button.data('harga');
-                    var deskripsi = button.data('deskripsi');
-                    var foto = button.data('foto');
-                    var modal = $(this);
-                    var action = modal.find('#update-form').attr('action').replace(':id', id);
-                    modal.find('#update-form').attr('action', action);
-                    modal.find('#idEdit').val(id);
-                    modal.find('#nameEdit').val(name);
-                    modal.find('#hargaEdit').val(harga);
-                    modal.find('#deskripsiEdit').val(deskripsi);
-                    modal.find('#fotoEdit').attr('src', "{{ asset('storage/images/') }}/" + foto);
-
-                });
-            });
-        </script>
-        <script>
-            $(document).ready(function() {
                 $('.keranjang').on('click', function() {
                     var qty = $(this).closest('.input-group').find('.qty');
                     var id = $(this).data('id');

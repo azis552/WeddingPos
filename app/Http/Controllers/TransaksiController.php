@@ -172,4 +172,18 @@ class TransaksiController extends Controller
         ]);
         return response()->json(['message' => 'Status Berhasil Diupdate']);
     }
+
+    public function laporan()
+    {
+        $title = 'Laporan';
+        return view('laporan.laporanTransaksi', compact('title'));
+    }
+
+    public function cariLaporan(Request $request)
+    {
+        $tanggal_awal = $request->tanggalMulai;
+        $tanggal_akhir = $request->tanggalSelesai;
+        $transaksis = Transaksi::with('user', 'detailTransaksi')->whereBetween('created_at', [$tanggal_awal, $tanggal_akhir])->get();
+        return response()->json($transaksis);
+    }
 }

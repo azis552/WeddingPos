@@ -54,4 +54,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profil', [AuthController::class, 'profile'])->name('profil');
     Route::put('/profil/{id}', [AuthController::class, 'updateProfil'])->name('profil.update');
     Route::get('/laporan', [TransaksiController::class, 'laporan'])->name('laporan');
+    Route::post('/laporan', [TransaksiController::class, 'laporanPost'])->name('cetakLaporan');
+    Route::post('/cariLaporan', [TransaksiController::class, 'cariLaporan'])->name('cariLaporan');
 });
