@@ -54,11 +54,15 @@
                                     <button class="btn btn-danger batal"
                                         {{ $transaksi->status == 'batal' ? 'disabled' : '' }}
                                         data-id="{{ $transaksi->id }}">Batal</button>
+                                    <button class="btn btn-warning update_status" data-bs-toggle="modal"
+                                        data-bs-target="#updateStatus" data-id="{{ $transaksi->id }}">
+                                        Update Status
+                                    </button>
                                 @else
                                     <button class="btn btn-primary btnInvoice" data-bs-toggle="modal"
                                         data-bs-target="#invoice" data-id="{{ $transaksi->id }}">Invoice</button>
-                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateStatus"
-                                        data-id="{{ $transaksi->id }}">
+                                    <button class="btn btn-warning update_status" data-bs-toggle="modal"
+                                        data-bs-target="#updateStatus" data-id="{{ $transaksi->id }}">
                                         Update Status
                                     </button>
                                 @endif
@@ -97,54 +101,18 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-bordered table-striped table-hover table-responsive display nowrap " style="width: 100%">
+                        <table class="table table-bordered table-striped table-hover table-responsive display nowrap "
+                            style="width: 100%">
+                            <input type="hidden" id="idProgress" name="idProgress">
                             <thead>
                                 <tr>
                                     <th scope="col">Status</th>
                                     <th scope="col">Keterangan</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                          </div>
-                                    </td>
-                                    <td>
-                                        Pembayaran
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                          </div>
-                                    </td>
-                                    <td>
-                                        Pemasangan
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                          </div>
-                                    </td>
-                                    <td>
-                                        Pelepasan
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                          </div>
-                                    </td>
-                                    <td>
-                                        Selesai
-                                    </td>
-                                </tr>
+                            <tbody id="tblProgress">
+
+
                             </tbody>
                         </table>
                     </div>
@@ -302,7 +270,7 @@
                         success: function(response) {
                             console.log(response);
                             var table = 'Nama Pembeli : ' + response[0].transaksi.user.name +
-                            '<br>';
+                                '<br>';
                             table +=
                                 '<table class="table table-bordered table-striped table-hover table-responsive display nowrap " style="width: 100%">';
                             table += '<thead>';
@@ -363,7 +331,143 @@
 
                     window.print(); // Cetak halaman
                     window.location.href = "{{ route('daftarTransaksi') }}";
-                    
+
+                });
+
+                $(".update_status").on('click', function() {
+                    var id = $(this).data('id');
+                    $('#idProgress').val(id);
+                    $.ajax({
+                        url: "{{ route('transaksi.updateStatus', ':id') }}".replace(':id', id),
+                        type: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            var proses = response.transaksi.status;
+                            var table = '';
+                            if (proses == 'proses') {
+                                table += '<tr>';
+                                table +=
+                                    '<td><input class="form-check-input" disabled type="checkbox" role="switch" id="flexSwitchCheckDefault" checked></td>';
+                                table += '<td>Menunggu Pembayaran</td>';
+                                table += '</tr>';
+                            } else if (proses != 'keranjang' && proses != 'proses') {
+                                table += '<tr>';
+                                table +=
+                                    '<td><input class="form-check-input" disabled type="checkbox" role="switch" id="flexSwitchCheckDefault" checked></td>';
+                                table += '<td>Proses</td>';
+                                table += '</tr>';
+                                table += '<tr>';
+                                table +=
+                                    '<td><input class="form-check-input" checked  disabled type="checkbox" role="switch" id="flexSwitchCheckDefault"></td>';
+                                table += '<td>Pembayaran</td>';
+                                table += '</tr>';
+                                table += '<tr>';
+                                table += '<tr>';
+                                table += '<td><input class="form-check-input btnPemasangan" ' +
+                                    (proses == 'pemasangan' || proses == 'selesai' || proses ==
+                                        'pelepasan' ? 'checked' : '') +
+                                    ' type="checkbox" role="switch"></td>';
+                                table += '<td>Pemasangan</td>';
+                                table += '</tr>';
+
+                                table += '<tr>';
+                                table += '<td><input class="form-check-input btnPelepasan" ' +
+                                    (proses == 'pelepasan' || proses == 'selesai' ? 'checked' :
+                                    '') +
+                                    ' type="checkbox" role="switch"></td>';
+                                table += '<td>Pelepasan</td>';
+                                table += '</tr>';
+
+                                table += '<tr>';
+                                table += '<td><input class="form-check-input btnSelesai" ' +
+                                    (proses == 'selesai' ? 'checked' : '') +
+                                    ' type="checkbox" role="switch"></td>';
+                                table += '<td>Selesai</td>';
+                                table += '</tr>';
+                            }
+
+                            $('#tblProgress').html(table);
+                        }
+                    });
+                });
+                // $(".btnPemasangan").on('change', function() {
+                //     var id = $('#idProgress').val();
+                //     var status = 'pemasangan';
+                //     $.ajax({
+                //         url: "{{ route('transaksi.updateStatusPut', ':id') }}".replace(':id', id),
+                //         type: 'PUT',
+                //         data: {
+                //             status: status
+                //         },
+                //         headers: {
+                //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                //         },
+                //         success: function(response) {
+                //             window.location.href = "{{ route('daftarTransaksi') }}";
+                //         }
+                //     });
+                // })
+            });
+        </script>
+        <script>
+            $(document).on('change', '.btnPemasangan', function() {
+                var id = $('#idProgress').val();
+                var status = 'pemasangan';
+
+                $.ajax({
+                    url: "{{ route('transaksi.updateStatusPut', ':id') }}".replace(':id', id),
+                    type: 'PUT',
+                    data: {
+                        status: status
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        
+                    }
+                });
+            });
+        </script>
+        <script>
+            $(document).on('change', '.btnPelepasan', function() {
+                var id = $('#idProgress').val();
+                var status = 'pelepasan';
+
+                $.ajax({
+                    url: "{{ route('transaksi.updateStatusPut', ':id') }}".replace(':id', id),
+                    type: 'PUT',
+                    data: {
+                        status: status
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                       
+                    }
+                });
+            });
+        </script>
+        <script>
+            $(document).on('change', '.btnSelesai', function() {
+                var id = $('#idProgress').val();
+                var status = 'selesai';
+
+                $.ajax({
+                    url: "{{ route('transaksi.updateStatusPut', ':id') }}".replace(':id', id),
+                    type: 'PUT',
+                    data: {
+                        status: status
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        
+                    }
                 });
             });
         </script>

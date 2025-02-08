@@ -49,4 +49,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [TransaksiController::class, 'checkout'])->name('checkout');
     Route::get('/daftarTransaksi', [TransaksiController::class, 'daftarTransaksi'])->name('daftarTransaksi');
     Route::post('/bayarTransaksi', [TransaksiController::class, 'bayarTransaksi'])->name('transaksi.bayar');
+    Route::get('/updateproses/{id}', [TransaksiController::class, 'updateStatus'])->name('transaksi.updateStatus');
+    Route::put('/update/{id}', [TransaksiController::class, 'update'])->name('transaksi.updateStatusPut');
 });

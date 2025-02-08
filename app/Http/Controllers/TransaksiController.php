@@ -157,4 +157,19 @@ class TransaksiController extends Controller
         ]);
         return redirect()->route('daftarTransaksi')->with('success', 'Transaksi Berhasil Dibayar');
     }
+
+    public function updateStatus($id)
+    {
+        $transaksi = Transaksi::find($id);
+        return response()->json(['message' => 'Status Berhasil Diupdate','transaksi' => $transaksi]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $transaksi = Transaksi::find($id);
+        $transaksi->update([
+            'status' => $request->status
+        ]);
+        return response()->json(['message' => 'Status Berhasil Diupdate']);
+    }
 }
