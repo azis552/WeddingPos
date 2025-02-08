@@ -141,7 +141,7 @@ class AuthController extends Controller
 
     public function updateProfil(Request $request, $id)
     {
-        $profil = Profil::where('users_id', $id)->first();
+        $profil = Profil::where('users_id', Auth::user()->id)->first();
         $profil->update([
             'name' => $request->nama_lengkap,
             'tanggal_lahir' => $request->tanggal_lahir,
