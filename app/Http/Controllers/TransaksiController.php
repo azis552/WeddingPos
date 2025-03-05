@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barang;
 use App\Models\Bayar;
 use App\Models\DetailTransaksi;
 use App\Models\Status;
@@ -207,10 +208,22 @@ class TransaksiController extends Controller
 
     public function update(Request $request, $id)
     {
-        $transaksi = Transaksi::find($id);
-        $transaksi->update([
+        $status = Status::create([
+            'id_transaksi' => $id,
             'status' => $request->status
         ]);
+        if($request->status == 'pelepasan'){
+            $transaksi = Transaksi::find($id);
+            $detailTransaksi = DetailTransaksi::where('transaksis_id', $transaksi->id)->get();
+            foreach ($detailTransaksi as $detail) {
+                $barang = Barang::find($detail->barangs_id);
+                
+                $barang->update([
+                    'stok' => $barang->stok + $detail->jumlah,
+                ]);
+            }
+        }
+        
         return response()->json(['message' => 'Status Berhasil Diupdate']);
     }
 
