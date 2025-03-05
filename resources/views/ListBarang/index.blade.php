@@ -33,7 +33,7 @@
 
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">Harga: {{ formatRupiah($barang->harga) }}</li>
-                                <li class="list-group-item">Stok: {{ $barang->stok }}</li>
+                                <li class="list-group-item qty-stok" data-stok="{{ $barang->stok }}">Stok: {{ $barang->stok }}</li>
                             </ul>
                             <div class="input-group mt-2">
                                 <button class="btn btn-warning btnMinus" id=""><i
@@ -42,13 +42,14 @@
                                         class="fa-solid fa-plus"></i></button>
                                 <input type="text" readonly id="" class="form-control qty"
                                     @php
-                                        $detailTransaksi = $barang->detailTransaksi->filter(fn($detail) => $detail->transaksi && $detail->transaksi->users_id == Auth::user()->id && $detail->transaksi->status == 'keranjang')->first(); 
-                                    @endphp
-                                    @if ($detailTransaksi) 
-                                        value = "{{ $detailTransaksi->jumlah }}"
-                                    @else
-                                        value = "0" 
-                                    @endif>
+$detailTransaksi = $barang->detailTransaksi->filter(function($detail) {
+                                    return $detail->transaksi 
+                                        && $detail->transaksi->users_id == Auth::user()->id 
+                                        && optional($detail->transaksi->statusTerakhir)->status == 'keranjang';
+                                })->first(); @endphp
+                                    @if ($detailTransaksi) value="{{ $detailTransaksi->jumlah }}"
+                            @else
+                                value="0" @endif>
                                 <button class="btn btn-warning keranjang" id="" data-id="{{ $barang->id }}"><i
                                         class="fa-solid fa-cart-plus"></i></button>
                                 {{-- <button class="btn btn-success" id="transaksi"><i class="fa-solid fa-cash-register"></i></button> --}}
@@ -66,11 +67,16 @@
         <script>
             $(document).ready(function() {
                 $('.btnPlus').on('click', function() {
-                    var qty = $(this).closest('.input-group').find('.qty');
-                    var currentVal = parseInt(qty.val());
-                    if (!isNaN(currentVal)) {
-                        qty.val(currentVal + 1);
+                    var qtyInput = $(this).closest(".input-group").find(".qty");
+                    var stok = $(this).closest(".input-group").prev().find(".qty-stok").data("stok");
+                    var currentVal = parseInt(qtyInput.val());
+
+                    if (currentVal >= stok) {
+                        alert("Stok tidak mencukupi!");
+                        return false;
                     }
+
+                    qtyInput.val(currentVal + 1);
                 });
                 $('.btnMinus').on('click', function() {
                     var qty = $(this).closest('.input-group').find('.qty');

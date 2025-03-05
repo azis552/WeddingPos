@@ -17,4 +17,13 @@ class Transaksi extends Model
     {
         return $this->hasMany(DetailTransaksi::class, 'transaksis_id');
     }
+    public function status()
+    {
+        return $this->hasMany(Status::class, 'id_transaksi');
+    }
+
+    public function statusTerakhir()
+    {
+        return $this->hasOne(Status::class, 'id_transaksi')->latestOfMany();
+    }
 }

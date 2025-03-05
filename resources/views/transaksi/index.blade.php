@@ -30,6 +30,7 @@
                         <th scope="col">Tanggal Transaksi</th>
                         <th scope="col">Jumlah Barang</th>
                         <th scope="col">Total Harga</th>
+                        <th>Metode Pembayaran</th>
                         <th>Status</th>
                         <th scope="col">Action</th>
                     </tr>
@@ -44,12 +45,29 @@
                             <td>
                                 {{ formatRupiah($transaksi->total) }}
                             </td>
-                            <td>{{ $transaksi->status }}</td>
+                            <td>
+                                @if ($transaksi->jenis_pembayaran == '1')
+                                    cash bayar depan
+                                @elseif ($transaksi->jenis_pembayaran == '2')
+                                    cash bayar belakang
+                                @elseif ($transaksi->jenis_pembayaran == '3')
+                                    transfer bayar depan
+                                @elseif ($transaksi->jenis_pembayaran == '4')
+                                    transfer bayar belakang
+                                @elseif ($transaksi->jenis_pembayaran == '5')
+                                    cash dp + pelunasan
+                                @elseif ($transaksi->jenis_pembayaran == '6')
+                                    transfer dp + pelunasan
+                                @endif
+
+                            </td>
+                            <td>{{ $transaksi->statusTerakhir->status }}</td>
                             <td>
                                 <button class="btn btn-primary bayar" data-bs-toggle="modal" data-bs-target="#Bayar"
-                                        data-id="{{ $transaksi->id }}">Bayar</button>
-                                <button class="btn btn-success detailTransaksi" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                    data-id="{{ $transaksi->id }}">Detail Barang</button>
+                                    data-id="{{ $transaksi->id }}"
+                                    data-jenis_pembayaran="{{ $transaksi->jenis_pembayaran }}">Bayar</button>
+                                <button class="btn btn-success detailTransaksi" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal" data-id="{{ $transaksi->id }}">Detail Barang</button>
                                 <button class="btn btn-danger batal" {{ $transaksi->status == 'batal' ? 'disabled' : '' }}
                                     data-id="{{ $transaksi->id }}">Batal</button>
                             </td>
@@ -79,47 +97,22 @@
             </div>
         </div>
         <div class="modal fade" id="Bayar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Bayar</h1>
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Bukti Pembayaran</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div>
-                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="id" id="id">
-                                <div class="form-group">
-                                    <label for=""">Bukti Pembayaran</label>
-                                    <input type="file" name="bukti_pembayaran" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Tanggal Pemasangan</label>
-                                    <input type="date" name="tanggal_pemasangan" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Tanggal Pelepasan</label>
-                                    <input type="date" name="tanggal_pelepasan" class="form-control">
-                                </div>
-                                <div>
-                                    <label for="">Matode Pembayaran</label>
-                                    <select name="metode_pembayaran" class="form-control">
-                                        <option value="transfer">Transfer</option>
-                                        <option value="cash">Cash</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Catatan</label>
-                                    <textarea class="form-control" name="catatan" id="" cols="30" rows="10"></textarea>
-                                </div>
+                            <input type="hidden" name="id" id="id">
+                            <div id="tblTagihan"></div>
 
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        </form>
+
                     </div>
                 </div>
             </div>
@@ -139,6 +132,7 @@
                 });
                 $('.batal').on('click', function() {
                     var id_transaksi = $(this).data('id');
+                    if (confirm("Apakah Anda yakin ingin membatalkan transaksi?")) {
                     $.ajax({
                         url: "{{ route('batalTransaksi', ':id') }}".replace(':id', id_transaksi),
                         type: 'PUT',
@@ -149,6 +143,7 @@
                             window.location.href = "{{ route('transaksiSaya.index') }}";
                         }
                     });
+                }
                 });
 
                 $('.detailTransaksi').on('click', function() {
@@ -157,7 +152,8 @@
                         url: "{{ route('detailTransaksi', ':id') }}".replace(':id', id),
                         type: 'GET',
                         success: function(response) {
-                            var table = '<table class="table table-bordered table-striped table-hover table-responsive display nowrap " style="width: 100%">';
+                            var table =
+                                '<table class="table table-bordered table-striped table-hover table-responsive display nowrap " style="width: 100%">';
                             table += '<thead>';
                             table += '<tr>';
                             table += '<th scope="col">No</th>';
@@ -189,7 +185,26 @@
 
                 $('.bayar').on('click', function() {
                     var id = $(this).data('id');
+                    var jenis_pembayaran = $(this).data('jenis_pembayaran');
                     $('#id').val(id);
+                    var role = "{{ Auth::user()->role }}"; // Ambil role dari Blade ke JavaScript
+                    if (jenis_pembayaran == '1') {
+                            if (role === "admin") {
+                                $html = "";
+                                $html += "<table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>";
+                                $html += "<thead>";
+                                $html += "<tr>";
+                                $html += "<th scope='col'>No</th>";
+                                $html += "<th scope='col'>Jenis Bayar</th>";
+                                $html += "<th scope='col'>Aksi</th>";
+                                $html += "</tr>";
+                                $html += "</thead>";
+
+                                $("#tblTagihan").html($html)
+                            } else {
+                                $("#tblTagihan").html("Menunggu approve admin");
+                            }
+                    }
                 });
 
             });

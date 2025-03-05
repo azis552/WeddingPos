@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('users_id')->constrained('users')->onDelete('cascade');
             $table->date('tanggal')->nullable();
             $table->string('total')->nullable();
-            $table->enum('status',['keranjang','proses','selesai','batal','pemasangan','pelepasan','lunas'])->default('keranjang');
             $table->string('jenis_pembayaran')->nullable();
             // cash = 1
             // dp-pelunasan = 2

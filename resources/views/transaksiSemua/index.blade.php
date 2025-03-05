@@ -30,6 +30,7 @@
                         <th scope="col">Tanggal Transaksi</th>
                         <th scope="col">Jumlah Barang</th>
                         <th scope="col">Total Harga</th>
+                        <th>Jenis Pembayaran</th>
                         <th>Status</th>
                         <th scope="col">Action</th>
                     </tr>
@@ -44,28 +45,41 @@
                             <td>
                                 {{ formatRupiah($transaksi->total) }}
                             </td>
-                            <td>{{ $transaksi->status }}</td>
+                            <td>
+                                @if ($transaksi->jenis_pembayaran == '1')
+                                    cash bayar depan
+                                @elseif ($transaksi->jenis_pembayaran == '2')
+                                    cash bayar belakang
+                                @elseif ($transaksi->jenis_pembayaran == '3')
+                                    transfer bayar depan
+                                @elseif ($transaksi->jenis_pembayaran == '4')
+                                    transfer bayar belakang
+                                @elseif ($transaksi->jenis_pembayaran == '5')
+                                    cash dp + pelunasan
+                                @elseif ($transaksi->jenis_pembayaran == '6')
+                                    transfer dp + pelunasan
+                                @endif
+
+                            </td>
+                            <td>{{ $transaksi->statusTerakhir->status }}</td>
                             <td>
                                 <button class="btn btn-success detailTransaksi" data-bs-toggle="modal"
                                     data-bs-target="#exampleModal" data-id="{{ $transaksi->id }}">Detail Barang</button>
-                                @if ($transaksi->status == 'proses')
-                                    <button class="btn btn-primary bayar" data-bs-toggle="modal" data-bs-target="#Bayar"
-                                        data-id="{{ $transaksi->id }}">Bayar</button>
-                                    <button class="btn btn-danger batal"
-                                        {{ $transaksi->status == 'batal' ? 'disabled' : '' }}
-                                        data-id="{{ $transaksi->id }}">Batal</button>
-                                    <button class="btn btn-warning update_status" data-bs-toggle="modal"
-                                        data-bs-target="#updateStatus" data-id="{{ $transaksi->id }}">
-                                        Update Status
-                                    </button>
-                                @else
-                                    <button class="btn btn-primary btnInvoice" data-bs-toggle="modal"
-                                        data-bs-target="#invoice" data-id="{{ $transaksi->id }}">Invoice</button>
-                                    <button class="btn btn-warning update_status" data-bs-toggle="modal"
-                                        data-bs-target="#updateStatus" data-id="{{ $transaksi->id }}">
-                                        Update Status
-                                    </button>
-                                @endif
+
+                                <button class="btn btn-primary bayar" data-bs-toggle="modal" data-bs-target="#Bayar"
+                                    data-id="{{ $transaksi->id }}"
+                                    data-jenis_pembayaran="{{ $transaksi->jenis_pembayaran }}">Bayar</button>
+                                <button class="btn btn-danger batal" {{ $transaksi->status == 'batal' ? 'disabled' : '' }}
+                                    data-id="{{ $transaksi->id }}">Batal</button>
+                                <button class="btn btn-warning update_status" data-bs-toggle="modal"
+                                    data-bs-target="#updateStatus" data-id="{{ $transaksi->id }}">
+                                    Update Status
+                                </button>
+
+                                <button class="btn btn-primary btnInvoice" data-bs-toggle="modal" data-bs-target="#invoice"
+                                    data-id="{{ $transaksi->id }}">Invoice</button>
+
+
                             </td>
                         </tr>
                     @endforeach
@@ -148,7 +162,7 @@
         </div>
         <!-- Modal -->
         <div class="modal fade" id="Bayar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalLabel">Bayar</h1>
@@ -156,39 +170,19 @@
                     </div>
                     <div class="modal-body">
                         <div>
-                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="id" id="id">
-                                <div class="form-group">
-                                    <label for=""">Bukti Pembayaran</label>
-                                    <input type="file" name="bukti_pembayaran" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Tanggal Pemasangan</label>
-                                    <input type="date" name="tanggal_pemasangan" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Tanggal Pelepasan</label>
-                                    <input type="date" name="tanggal_pelepasan" class="form-control">
-                                </div>
-                                <div>
-                                    <label for="">Matode Pembayaran</label>
-                                    <select name="metode_pembayaran" class="form-control">
-                                        <option value="transfer">Transfer</option>
-                                        <option value="cash">Cash</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Catatan</label>
-                                    <textarea class="form-control" name="catatan" id="" cols="30" rows="10"></textarea>
-                                </div>
 
+                            <input type="hidden" name="id" id="id">
+                            <div>
+                                <input type="hidden" name="id" id="id">
+                                <div id="tblTagihan"></div>
+
+                            </div>
+                            <span style=" font-weight: bold ">NB : pembayaran cash dibuktikan dengan foto kwitansi dan
+                                bayar belakang dibuktikan dengan surat pernyataan</span>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -208,16 +202,18 @@
                 });
                 $('.batal').on('click', function() {
                     var id_transaksi = $(this).data('id');
-                    $.ajax({
-                        url: "{{ route('batalTransaksi', ':id') }}".replace(':id', id_transaksi),
-                        type: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            window.location.href = "{{ route('transaksiSaya.index') }}";
-                        }
-                    });
+                    if (confirm("Apakah Anda yakin ingin membatalkan transaksi?")) {
+                        $.ajax({
+                            url: "{{ route('batalTransaksi', ':id') }}".replace(':id', id_transaksi),
+                            type: 'PUT',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                window.location.href = "{{ route('transaksiSaya.index') }}";
+                            }
+                        });
+                    }
                 });
 
                 $('.detailTransaksi').on('click', function() {
@@ -259,7 +255,380 @@
 
                 $('.bayar').on('click', function() {
                     var id = $(this).data('id');
+                    var jenis_pembayaran = $(this).data('jenis_pembayaran');
                     $('#id').val(id);
+                    var role = "{{ Auth::user()->role }}"; // Ambil role dari Blade ke JavaScript
+                    $.ajax({
+                        url: "{{ route('cekPembayaran', ':id') }}".replace(':id', id),
+                        type: 'GET',
+                        success: function(response) {
+                            var table = '';
+                            var no = 1;
+
+                            // Jika ada data pembayaran, tampilkan di tabel
+                            if (response.length > 0) {
+                                table += `
+                                <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                    <thead>
+                                        <tr>
+                                            <th scope='col'>No</th>
+                                            <th scope='col'>Jenis Bayar</th>
+                                            <th scope='col'>Bukti</th>
+                                        </tr>
+                                    </thead>
+                                <tbody>`;
+                                if (jenis_pembayaran == '1') {
+                                    response.forEach((item, index) => {
+                                        table += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.metode_pembayaran}</td>
+                                    <td><img src="/storage/images/${item.bukti_pembayaran}" alt="Bukti Pembayaran" width="100"></td>
+
+                                </tr>`;
+                                    });
+                                } else if (jenis_pembayaran == '2') {
+                                    if (response.length == 1) {
+                                        table += ` <tr>
+                                                        <td>2</td>
+                                                        <td>Cash Bayar Belakang</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Cash Bayar Belakang">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>`
+                                    }
+                                    response.forEach((item, index) => {
+                                        table += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.metode_pembayaran}</td>
+                                    <td><img src="/storage/images/${item.bukti_pembayaran}" alt="Bukti Pembayaran" width="100"></td>
+
+                                </tr>`;
+                                    });
+                                } else if (jenis_pembayaran == '3') {
+                                    response.forEach((item, index) => {
+                                        table += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.metode_pembayaran}</td>
+                                    <td><img src="/storage/images/${item.bukti_pembayaran}" alt="Bukti Pembayaran" width="100"></td>
+
+                                </tr>`;
+                                    });
+                                } else if (jenis_pembayaran == '4') {
+                                    if (response.length == 1) {
+                                        table += ` <tr>
+                                                        <td>2</td>
+                                                        <td>Transfer Bayar Belakang</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Transfer Bayar Belakang">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>`
+                                    }
+                                    response.forEach((item, index) => {
+                                        table += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.metode_pembayaran}</td>
+                                    <td><img src="/storage/images/${item.bukti_pembayaran}" alt="Bukti Pembayaran" width="100"></td>
+
+                                </tr>`;
+                                    });
+                                } else if (jenis_pembayaran == '5') {
+                                    if (response.length == 1) {
+                                        table += ` <tr>
+                                                        <td>2</td>
+                                                        <td>Cash Pelunasan</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Cash Pelunasan">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>`
+                                    }
+                                    response.forEach((item, index) => {
+                                        table += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.metode_pembayaran}</td>
+                                    <td><img src="/storage/images/${item.bukti_pembayaran}" alt="Bukti Pembayaran" width="100"></td>
+
+                                </tr>`;
+                                    });
+                                } else if (jenis_pembayaran == '6') {
+                                    if (response.length == 1) {
+                                        table += ` <tr>
+                                                        <td>2</td>
+                                                        <td>Transfer Pelunasan</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Transfer Pelunasan">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>`
+                                    }
+                                    response.forEach((item, index) => {
+                                        table += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.metode_pembayaran}</td>
+                                    <td><img src="/storage/images/${item.bukti_pembayaran}" alt="Bukti Pembayaran" width="100"></td>
+
+                                </tr>`;
+                                    });
+                                }
+
+
+                                table += `</tbody></table>`;
+
+                                $("#tblTagihan").html(table);
+                            } else {
+                                // Jika pembayaran masih kosong, tampilkan form pembayaran
+                                if (jenis_pembayaran == '1') {
+                                    if (role === "admin") {
+                                        let $html = `
+                                            <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope='col'>No</th>
+                                                        <th scope='col'>Jenis Bayar</th>
+                                                        <th scope='col'>Bukti</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>Cash Bayar Depan</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Cash Bayar Depan">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>`;
+
+                                        $("#tblTagihan").html($html);
+                                    } else {
+                                        $("#tblTagihan").html("Menunggu approve admin");
+                                    }
+                                } else if (jenis_pembayaran == '2') {
+                                    if (role === "admin") {
+                                        let $html = `
+                                            <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope='col'>No</th>
+                                                        <th scope='col'>Jenis Bayar</th>
+                                                        <th scope='col'>Bukti</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>Surat Pernyataan</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Surat Pernyataan">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>2</td>
+                                                        <td>Cash Bayar Belakang</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Cash Bayar Belakang">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>`;
+
+                                        $("#tblTagihan").html($html);
+                                    } else {
+                                        $("#tblTagihan").html("Menunggu approve admin");
+                                    }
+
+                                } else if (jenis_pembayaran == '3') {
+                                    let $html = `
+                                            <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope='col'>No</th>
+                                                        <th scope='col'>Jenis Bayar</th>
+                                                        <th scope='col'>Bukti</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>Transfer Bayar Depan</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Transfer Bayar Depan">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Bayar</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>`;
+
+                                    $("#tblTagihan").html($html);
+                                } else if (jenis_pembayaran == '4') {
+                                    let $html = `
+                                            <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope='col'>No</th>
+                                                        <th scope='col'>Jenis Bayar</th>
+                                                        <th scope='col'>Bukti</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>Surat Pernyataan</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Surat Pernyataan">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                </tbody>
+                                            </table>`;
+
+                                    $("#tblTagihan").html($html);
+                                } else if (jenis_pembayaran == '5') {
+                                    let $html = `
+                                            <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope='col'>No</th>
+                                                        <th scope='col'>Jenis Bayar</th>
+                                                        <th scope='col'>Bukti</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>Cash DP</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Cash DP">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                            </table>`;
+
+                                    $("#tblTagihan").html($html);
+
+
+                                } else if (jenis_pembayaran == '6') {
+                                    let $html = `
+                                            <table class='table table-bordered table-striped table-hover table-responsive display nowrap' style='width: 100%'>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope='col'>No</th>
+                                                        <th scope='col'>Jenis Bayar</th>
+                                                        <th scope='col'>Bukti</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td>Transfer DP</td>
+                                                        <td>
+                                                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="id" value="${id}">
+                                                                <input type="hidden" name="jenis_pembayaran" value="Transfer DP">
+                                                                <div class="input-group mt-2">
+                                                                    <input type="file" required class="form-control" name="bukti">
+                                                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                                                </div>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                            </table>`;
+
+                                    $("#tblTagihan").html($html);
+                                }
+
+                            }
+                        },
+                        error: function() {
+                            $("#tblTagihan").html(
+                                "<p class='text-danger'>Gagal mengambil data pembayaran</p>");
+                        }
+                    });
                 });
 
                 $('.btnInvoice').on('click', function() {
@@ -314,8 +683,21 @@
                             table += '</tr>';
                             table += '<tr>';
                             table += '<td colspan="4">Metode Pembayaran</td>';
-                            table += '<td colspan="2">' + response[0].transaksi.metode_pembayaran +
-                                '</td>';
+                            table += '<td colspan="2">';
+                            if (response[0].transaksi.jenis_pembayaran == '1') {
+                                table += "cash bayar depan";
+                            } else if (response[0].transaksi.jenis_pembayaran == '2') {
+                                table += "cash bayar belakang";
+                            } else if (response[0].transaksi.jenis_pembayaran == '3') {
+                                table += "transfer bayar depan";
+                            } else if (response[0].transaksi.jenis_pembayaran == '4') {
+                                table += "transfer bayar belakang";
+                            } else if (response[0].transaksi.jenis_pembayaran == '5') {
+                                table += "cash dp + pelunasan";
+                            } else if (response[0].transaksi.jenis_pembayaran == '6') {
+                                table += "transfer dp + pelunasan";
+                            }
+                            table += '</td>';
                             table += '</tr>';
                             table += '</tfoot>';
                             table += '</table>';
@@ -375,7 +757,7 @@
                                 table += '<tr>';
                                 table += '<td><input class="form-check-input btnPelepasan" ' +
                                     (proses == 'pelepasan' || proses == 'selesai' ? 'checked' :
-                                    '') +
+                                        '') +
                                     ' type="checkbox" role="switch"></td>';
                                 table += '<td>Pelepasan</td>';
                                 table += '</tr>';
@@ -426,7 +808,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        
+
                     }
                 });
             });
@@ -446,7 +828,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                       
+
                     }
                 });
             });
@@ -466,7 +848,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        
+
                     }
                 });
             });

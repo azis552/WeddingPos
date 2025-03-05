@@ -100,9 +100,12 @@
                         <label for="">Jenis Pembayaran</label>
                         <select name="metodePembayaran" required id="metodePembayaran" class="form-control">
                             <option>Pilih Metode Pembayaran</option>
-                            <option value="1">Bayar Depan</option>
-                            <option value="2">Dp + Pelunasan</option>
-                            <option value="3">Bayar Belakang</option>
+                            <option value="1">cash bayar depan</option>
+                            <option value="2">cash bayar belakang</option>
+                            <option value="3">transfer bayar depan</option>
+                            <option value="4">transfer bayar belakang</option>
+                            <option value="5">cash dp + pelunasan</option>
+                            <option value="6">transfer dp + pelunasan</option>
                         </select>
                     </div>
                 </div>

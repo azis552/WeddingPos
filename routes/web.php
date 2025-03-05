@@ -56,4 +56,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan', [TransaksiController::class, 'laporan'])->name('laporan');
     Route::post('/laporan', [TransaksiController::class, 'laporanPost'])->name('cetakLaporan');
     Route::post('/cariLaporan', [TransaksiController::class, 'cariLaporan'])->name('cariLaporan');
+    Route::get('/cekPembayaran/{id}', [TransaksiController::class, 'cekPembayaran'])->name('cekPembayaran');
 });
