@@ -42,26 +42,27 @@
                         <tr>
                             <th scope="row">{{ $loop->iteration }}</th>
                             <td>{{ $barang->barang->name }}</td>
-                            
+
                             <td>
-                                <img src="{{ asset('storage/images/' . $barang->barang->foto) }}" 
-                                class="card-img-top" alt="{{ $barang->foto }}" style=" width: 9rem; height: 9rem; align-self: center; ">
+                                <img src="{{ asset('storage/images/' . $barang->barang->foto) }}" class="card-img-top"
+                                    alt="{{ $barang->foto }}" style=" width: 9rem; height: 9rem; align-self: center; ">
                             </td>
                             <td>{{ $barang->jumlah }}</td>
                             <td>
                                 {{ formatRupiah($barang->barang->harga) }}
 
-                            @php
-                                $totalHarga = $barang->jumlah * $barang->barang->harga;
-                            @endphp
+                                @php
+                                    $totalHarga = $barang->jumlah * $barang->barang->harga;
+                                @endphp
                             </td>
                             <td>{{ formatRupiah($totalHarga) }}</td>
                             <td>
                                 {{-- <a href="{{ route('user.edit', $barang->id) }}" class="btn btn-warning">Edit</a> --}}
-                                <form action="{{ route('keranjang.destroy', $barang->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('keranjang.destroy', $barang->id) }}" method="POST" class="d-inline"
+                                    onsubmit="return confirmDelete(event)">
                                     @csrf
                                     @method('DELETE')
-                                    
+
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
                             </td>
@@ -82,11 +83,36 @@
                         <td></td>
                 </tfoot>
             </table>
+            <div class="card shadow-md p-2  ">
+                <div class="row">
+                    <div class="col">
+                        <label for="">Tanggal Pemasangan</label>
+                        <input type="date" name="tanggalPemasangan" required id="tanggalPemasangan" class="form-control">
+                    </div>
+                    <div class="col">
+                        <label for="">Tanggal Pelepasan</label>
+                        <input type="date" name="tanggalPelepasan" required id="tanggalPelepasan" class="form-control">
+                    </div>
+
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <label for="">Jenis Pembayaran</label>
+                        <select name="metodePembayaran" required id="metodePembayaran" class="form-control">
+                            <option>Pilih Metode Pembayaran</option>
+                            <option value="1">Bayar Depan</option>
+                            <option value="2">Dp + Pelunasan</option>
+                            <option value="3">Bayar Belakang</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
-        <div class="card-footer" >
+        <div class="card-footer">
             <div class="float-end">
-                <button type="button" class="btn btn-primary checkout" >Checkout</button>
+                <button type="button" class="btn btn-primary checkout">Checkout</button>
             </div>
 
         </div>
@@ -105,20 +131,40 @@
                 });
                 $('.checkout').on('click', function() {
                     var id_transaksi = $('#id_transaksi').val();
-                    $.ajax({
-                        url: "{{ route('checkout') }}",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        type: 'POST',
-                        data: {
-                            id_transaksi: id_transaksi
-                        },
-                        success: function(response) {
-                            window.location.href = "{{ route('transaksiSaya.index') }}";
-                        }
-                    });
+                    var tanggalPemasangan = $('#tanggalPemasangan').val();
+                    var tanggalPelepasan = $('#tanggalPelepasan').val();
+                    var metodePembayaran = $('#metodePembayaran').val();
+                    // Validasi jika ada input yang kosong
+                    if (!id_transaksi || !tanggalPemasangan || !tanggalPelepasan || !metodePembayaran) {
+                        alert("Harap isi semua kolom sebelum melakukan checkout!");
+                        return;
+                    }
+                    if (confirm("Apakah Anda yakin ingin melakukan checkout?")) {
+                        $.ajax({
+                            url: "{{ route('checkout') }}",
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            type: 'POST',
+                            data: {
+                                id_transaksi: id_transaksi,
+                                tanggalPemasangan: tanggalPemasangan,
+                                tanggalPelepasan: tanggalPelepasan,
+                                metodePembayaran: metodePembayaran
+                            },
+                            success: function(response) {
+                                window.location.href = "{{ route('transaksiSaya.index') }}";
+                            }
+                        });
+                    }
                 });
             });
+
+            function confirmDelete(event) {
+                event.preventDefault(); // Mencegah form terkirim langsung
+                if (confirm("Apakah Anda yakin ingin menghapus barang ini?")) {
+                    event.target.submit(); // Jika konfirmasi "OK", kirimkan form
+                }
+            }
         </script>
     @endsection

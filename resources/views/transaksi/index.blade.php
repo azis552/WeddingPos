@@ -46,6 +46,8 @@
                             </td>
                             <td>{{ $transaksi->status }}</td>
                             <td>
+                                <button class="btn btn-primary bayar" data-bs-toggle="modal" data-bs-target="#Bayar"
+                                        data-id="{{ $transaksi->id }}">Bayar</button>
                                 <button class="btn btn-success detailTransaksi" data-bs-toggle="modal" data-bs-target="#exampleModal"
                                     data-id="{{ $transaksi->id }}">Detail Barang</button>
                                 <button class="btn btn-danger batal" {{ $transaksi->status == 'batal' ? 'disabled' : '' }}
@@ -72,6 +74,52 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="Bayar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Bayar</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <form action="{{ route('transaksi.bayar') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="id" id="id">
+                                <div class="form-group">
+                                    <label for=""">Bukti Pembayaran</label>
+                                    <input type="file" name="bukti_pembayaran" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Tanggal Pemasangan</label>
+                                    <input type="date" name="tanggal_pemasangan" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Tanggal Pelepasan</label>
+                                    <input type="date" name="tanggal_pelepasan" class="form-control">
+                                </div>
+                                <div>
+                                    <label for="">Matode Pembayaran</label>
+                                    <select name="metode_pembayaran" class="form-control">
+                                        <option value="transfer">Transfer</option>
+                                        <option value="cash">Cash</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Catatan</label>
+                                    <textarea class="form-control" name="catatan" id="" cols="30" rows="10"></textarea>
+                                </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -137,6 +185,11 @@
                             $('#detailTransaksi').html(table);
                         }
                     });
+                });
+
+                $('.bayar').on('click', function() {
+                    var id = $(this).data('id');
+                    $('#id').val(id);
                 });
 
             });

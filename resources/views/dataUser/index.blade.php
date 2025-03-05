@@ -155,7 +155,8 @@
                             </td>
                             <td>
                                 {{-- <a href="{{ route('user.edit', $user->id) }}" class="btn btn-warning">Edit</a> --}}
-                                <form action="{{ route('user.destroy', $user->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('user.destroy', $user->id) }}"
+                                    onsubmit="return confirmDelete(event)" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal"
@@ -187,6 +188,13 @@
                 });
 
             });
+
+            function confirmDelete(event) {
+                event.preventDefault(); // Mencegah form terkirim langsung
+                if (confirm("Apakah Anda yakin ingin menghapus pengguna ini?")) {
+                    event.target.submit(); // Jika konfirmasi "OK", kirimkan form
+                }
+            }
         </script>
         <script>
             $(document).ready(function() {

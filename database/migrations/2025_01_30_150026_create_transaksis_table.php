@@ -17,9 +17,10 @@ return new class extends Migration
             $table->date('tanggal')->nullable();
             $table->string('total')->nullable();
             $table->enum('status',['keranjang','proses','selesai','batal','pemasangan','pelepasan','lunas'])->default('keranjang');
-            $table->string('metode_pembayaran')->nullable();
-            $table->string('bukti_pembayaran')->nullable();
-            $table->string('status_pembayaran')->nullable();
+            $table->string('jenis_pembayaran')->nullable();
+            // cash = 1
+            // dp-pelunasan = 2
+            // bayar-belakang = 3
             $table->date('tanggal_pemasangan')->nullable();
             $table->date('tanggal_pelepasan')->nullable();
             $table->string('catatan')->nullable();

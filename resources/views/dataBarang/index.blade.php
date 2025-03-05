@@ -96,6 +96,11 @@
                                     <label for="inputEmail">Harga Barang</label>
                                 </div>
                                 <div class="form-floating mb-3">
+                                    <input class="form-control" name="stok" id="stok" type="text"
+                                        placeholder="Stok Harga" />
+                                    <label for="inputEmail">Stok Barang</label>
+                                </div>
+                                <div class="form-floating mb-3">
                                     <input class="form-control" name="deskripsi" id="deskripsiEdit" type="text"
                                         placeholder="Deskripsi Barang" />
                                     <label for="inputEmail">Deskripsi Barang</label>
@@ -155,7 +160,7 @@
                             </td>
                             <td>
                                 {{-- <a href="{{ route('user.edit', $barang->id) }}" class="btn btn-warning">Edit</a> --}}
-                                <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" class="d-inline" onsubmit="return confirmDelete(event)" >
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal"
@@ -189,6 +194,12 @@
                 });
 
             });
+            function confirmDelete(event) {
+                event.preventDefault(); // Mencegah form terkirim langsung
+                if (confirm("Apakah Anda yakin ingin menghapus barang ini?")) {
+                    event.target.submit(); // Jika konfirmasi "OK", kirimkan form
+                }
+            }
         </script>
         <script>
             $(document).ready(function() {

@@ -104,7 +104,10 @@ class TransaksiController extends Controller
         $transaksi->update([
             'total' => $detailTransaksi,
             'tanggal' => date('Y-m-d'),
-            'status' => 'proses'
+            'status' => 'proses',
+            'tanggal_pemasangan' => $request->tanggalPemasangan,
+            'tanggal_pelepasan' => $request->tanggalPelepasan,
+            'jenis_pembayaran' => $request->metodePembayaran
         ]);
         return response()->json(['message' => 'Checkout Berhasil']);
 
