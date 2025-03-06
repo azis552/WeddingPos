@@ -199,11 +199,34 @@ class TransaksiController extends Controller
 
         return redirect()->route('daftarTransaksi')->with('success', 'Transaksi Berhasil Dibayar');
     }
+    public function bayarTransaksiSaya(Request $request)
+    {
+
+        if($request->bukti != null){
+            $bukti = $request->file('bukti');
+            $nama_bukti = time() . '.' . $bukti->getClientOriginalExtension();
+            $upload = $bukti->move(public_path('storage/images'), $nama_bukti);
+        }
+
+        $bayar = Bayar::create([
+            'transaksis_id' => $request->id,
+            'metode_pembayaran' => $request->jenis_pembayaran,
+            'bukti_pembayaran' => $nama_bukti,
+            'tanggal' => date('Y-m-d')
+        ]);
+
+        $status = Status::create([
+            'id_transaksi' => $request->id,
+            'status' => $request->jenis_pembayaran
+        ]);
+
+        return redirect()->route('transaksiSaya.index')->with('success', 'Transaksi Berhasil Dibayar');
+    }
 
     public function updateStatus($id)
     {
         $transaksi = Transaksi::find($id);
-        return response()->json(['message' => 'Status Berhasil Diupdate', 'transaksi' => $transaksi]);
+        return response()->json(['message' => 'Status Berhasil Diupdate', 'transaksi' => $transaksi->status]);
     }
 
     public function update(Request $request, $id)

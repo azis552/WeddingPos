@@ -63,20 +63,21 @@
                             </td>
                             <td>{{ $transaksi->statusTerakhir->status }}</td>
                             <td>
+                                
                                 <button class="btn btn-success detailTransaksi" data-bs-toggle="modal"
-                                    data-bs-target="#exampleModal" data-id="{{ $transaksi->id }}">Detail Barang</button>
+                                    data-bs-target="#exampleModal"  data-id="{{ $transaksi->id }}">Detail Barang</button>
 
-                                <button class="btn btn-primary bayar" data-bs-toggle="modal" data-bs-target="#Bayar"
+                                <button class="btn btn-primary bayar" {{ $transaksi->statusTerakhir->status == 'batal' ? 'disabled' : '' }} data-bs-toggle="modal" data-bs-target="#Bayar"
                                     data-id="{{ $transaksi->id }}"
                                     data-jenis_pembayaran="{{ $transaksi->jenis_pembayaran }}">Bayar</button>
-                                <button class="btn btn-danger batal" {{ $transaksi->status == 'batal' ? 'disabled' : '' }}
+                                <button class="btn btn-danger batal"  {{ $transaksi->statusTerakhir->status == 'batal' ? 'disabled' : '' }}
                                     data-id="{{ $transaksi->id }}">Batal</button>
-                                <button class="btn btn-warning update_status" data-bs-toggle="modal"
+                                <button class="btn btn-warning update_status" {{ $transaksi->statusTerakhir->status == 'batal' ? 'disabled' : '' }} data-bs-toggle="modal"
                                     data-bs-target="#updateStatus" data-id="{{ $transaksi->id }}">
                                     Update Status
                                 </button>
 
-                                <button class="btn btn-primary btnInvoice" data-bs-toggle="modal" data-bs-target="#invoice"
+                                <button class="btn btn-primary btnInvoice" {{ $transaksi->statusTerakhir->status == 'batal' ? 'disabled' : '' }} data-bs-toggle="modal" data-bs-target="#invoice"
                                     data-id="{{ $transaksi->id }}">Invoice</button>
 
 
@@ -726,49 +727,36 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(response) {
-                            var proses = response.transaksi.status;
+                            var transaksi = response.transaksi;
                             var table = '';
-                            if (proses == 'proses') {
+                            // Menampilkan status yang telah ada
+                            transaksi.forEach(function(item) {
                                 table += '<tr>';
                                 table +=
-                                    '<td><input class="form-check-input" disabled type="checkbox" role="switch" id="flexSwitchCheckDefault" checked></td>';
-                                table += '<td>Menunggu Pembayaran</td>';
+                                    '<td><input class="form-check-input" disabled type="checkbox" role="switch" checked></td>';
+                                table += `<td>${item.status}</td>`;
                                 table += '</tr>';
-                            } else if (proses != 'keranjang' && proses != 'proses') {
-                                table += '<tr>';
-                                table +=
-                                    '<td><input class="form-check-input" disabled type="checkbox" role="switch" id="flexSwitchCheckDefault" checked></td>';
-                                table += '<td>Proses</td>';
-                                table += '</tr>';
-                                table += '<tr>';
-                                table +=
-                                    '<td><input class="form-check-input" checked  disabled type="checkbox" role="switch" id="flexSwitchCheckDefault"></td>';
-                                table += '<td>Pembayaran</td>';
-                                table += '</tr>';
+                            });
+                            table += '<tr> <td colspan="2"><hr></td></tr>';
+                            table += '<tr> <td colspan="2">untuk update klik dibawah</td></tr>';
+
+                               
                                 table += '<tr>';
                                 table += '<tr>';
-                                table += '<td><input class="form-check-input btnPemasangan" ' +
-                                    (proses == 'pemasangan' || proses == 'selesai' || proses ==
-                                        'pelepasan' ? 'checked' : '') +
-                                    ' type="checkbox" role="switch"></td>';
+                                table += '<td><input class="form-check-input btnPemasangan"type="checkbox" role="switch"></td>';
                                 table += '<td>Pemasangan</td>';
                                 table += '</tr>';
 
                                 table += '<tr>';
-                                table += '<td><input class="form-check-input btnPelepasan" ' +
-                                    (proses == 'pelepasan' || proses == 'selesai' ? 'checked' :
-                                        '') +
-                                    ' type="checkbox" role="switch"></td>';
+                                table += '<td><input class="form-check-input btnPelepasan" type="checkbox" role="switch"></td>';
                                 table += '<td>Pelepasan</td>';
                                 table += '</tr>';
 
                                 table += '<tr>';
-                                table += '<td><input class="form-check-input btnSelesai" ' +
-                                    (proses == 'selesai' ? 'checked' : '') +
-                                    ' type="checkbox" role="switch"></td>';
+                                table += '<td><input class="form-check-input btnSelesai" type="checkbox" role="switch"></td>';
                                 table += '<td>Selesai</td>';
                                 table += '</tr>';
-                            }
+                            
 
                             $('#tblProgress').html(table);
                         }
