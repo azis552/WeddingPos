@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Bayar;
 use App\Models\DetailTransaksi;
+use App\Models\Notifikasi;
 use App\Models\Status;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
@@ -40,6 +41,18 @@ class TransaksiController extends Controller
             $detailTransaksi->update([
                 'jumlah' =>  $request->qty
             ]);
+            $notifikasi = Notifikasi::create([
+                'users_id' => Auth::user()->id,
+                'status' => 'belum',
+                'notifikasi' => 'Tambah Keranjang Berhasil'
+            ]);
+            
+    
+            $notikasi_admin = Notifikasi::create([
+                'users_id' => 1,
+                'status' => 'belum',
+                'notifikasi' => 'Tambah Keranjang Berhasil dari '. Auth::user()->name
+            ]);
             return response()->json(['message' => 'Quantity Berhasil dirubah']);
         } else {
             $dataTransaksi = Transaksi::where('users_id', Auth::user()->id)
@@ -67,6 +80,18 @@ class TransaksiController extends Controller
                 ]);
 
                 if ($detailTransaksi) {
+                    $notifikasi = Notifikasi::create([
+                        'users_id' => Auth::user()->id,
+                        'status' => 'belum',
+                        'notifikasi' => 'Tambah Keranjang Berhasil'
+                    ]);
+                    
+            
+                    $notikasi_admin = Notifikasi::create([
+                        'users_id' => 1,
+                        'status' => 'belum',
+                        'notifikasi' => 'Tambah Keranjang Berhasil'. Auth::user()->name
+                    ]);
                     return response()->json(['message' => 'Data Berhasil Ditambahkan']);
                 } else {
                     return response()->json(['message' => 'Data Gagal Ditambahkan']);
@@ -93,6 +118,18 @@ class TransaksiController extends Controller
     {
         $detailTransaksi = DetailTransaksi::find($id);
         $detailTransaksi->delete();
+        $notifikasi = Notifikasi::create([
+            'users_id' => Auth::user()->id,
+            'status' => 'belum',
+            'notifikasi' => 'Hapus Keranjang Berhasil'
+        ]);
+        
+
+        $notikasi_admin = Notifikasi::create([
+            'users_id' => 1,
+            'status' => 'belum',
+            'notifikasi' => 'Hapus Keranjang Berhasil'. Auth::user()->name
+        ]);
         return redirect()->route('keranjang.index')->with('success', 'Data Berhasil Dihapus');
     }
     public function transaksiSaya()
@@ -138,6 +175,19 @@ class TransaksiController extends Controller
             'id_transaksi' => $transaksi->id,
             'status' => 'checkout'
         ]);
+
+        $notifikasi = Notifikasi::create([
+            'users_id' => Auth::user()->id,
+            'status' => 'belum',
+            'notifikasi' => 'Checkout Berhasil '
+        ]);
+        
+
+        $notikasi_admin = Notifikasi::create([
+            'users_id' => 1,
+            'status' => 'belum',
+            'notifikasi' => 'Checkout Berhasil '. Auth::user()->name
+        ]);
         return response()->json(['message' => 'Checkout Berhasil']);
     }
 
@@ -154,6 +204,18 @@ class TransaksiController extends Controller
                 'stok' => $detail->barang->stok + $detail->jumlah,
             ]);
         }
+        $notifikasi = Notifikasi::create([
+            'users_id' => Auth::user()->id,
+            'status' => 'belum',
+            'notifikasi' => 'Batal Transaksi Berhasil'
+        ]);
+        
+
+        $notikasi_admin = Notifikasi::create([
+            'users_id' => 1,
+            'status' => 'belum',
+            'notifikasi' => 'Batal Transaksi Berhasil '. Auth::user()->name
+        ]);
 
         return response()->json(['message' => 'Transaksi Berhasil Dibatal']);
     }
@@ -192,9 +254,24 @@ class TransaksiController extends Controller
             'tanggal' => date('Y-m-d')
         ]);
 
+        $transaksi = Transaksi::find($request->id);
         $status = Status::create([
             'id_transaksi' => $request->id,
             'status' => $request->jenis_pembayaran
+        ]);
+
+        $notifikasi = Notifikasi::create([
+            'users_id' => $transaksi->users_id,
+            'status' => 'belum',
+            'notifikasi' => 'Bayar Transaksi Berhasil '.$request->jenis_pembayaran
+        ]);
+        
+        
+
+        $notikasi_admin = Notifikasi::create([
+            'users_id' => 1,
+            'status' => 'belum',
+            'notifikasi' => 'Bayar Transaksi Berhasil '.$request->jenis_pembayaran ." ". Auth::user()->name
         ]);
 
         return redirect()->route('daftarTransaksi')->with('success', 'Transaksi Berhasil Dibayar');
@@ -215,9 +292,23 @@ class TransaksiController extends Controller
             'tanggal' => date('Y-m-d')
         ]);
 
+        $transaksi = Transaksi::find($request->id);
         $status = Status::create([
             'id_transaksi' => $request->id,
             'status' => $request->jenis_pembayaran
+        ]);
+
+        $notifikasi = Notifikasi::create([
+            'users_id' => $transaksi->users_id,
+            'status' => 'belum',
+            'notifikasi' => 'Bayar Transaksi Berhasil '.$request->jenis_pembayaran
+        ]);
+        
+
+        $notikasi_admin = Notifikasi::create([
+            'users_id' => 1,
+            'status' => 'belum',
+            'notifikasi' => 'Bayar Transaksi Berhasil '.$request->jenis_pembayaran ." ". Auth::user()->name
         ]);
 
         return redirect()->route('transaksiSaya.index')->with('success', 'Transaksi Berhasil Dibayar');
@@ -246,6 +337,19 @@ class TransaksiController extends Controller
                 ]);
             }
         }
+
+        $notifikasi = Notifikasi::create([
+            'users_id' => Auth::user()->id,
+            'status' => 'belum',
+            'notifikasi' => 'Status  :'.$request->status
+        ]);
+        
+
+        $notikasi_admin = Notifikasi::create([
+            'users_id' => 1,
+            'status' => 'belum',
+            'notifikasi' => 'Status  :'.$request->status ." ". Auth::user()->name
+        ]);
         
         return response()->json(['message' => 'Status Berhasil Diupdate']);
     }

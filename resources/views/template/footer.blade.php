@@ -40,6 +40,53 @@
         return prefix + rupiah;
     }
 </script>
+
+<script>
+    $(document).ready(function () {
+        function loadNotifications(updateBadge = true) {
+            $.ajax({
+                url: "/notifications",
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                    let $notificationList = $("#notification-list");
+                    let $notificationBadge = $("#notification-count");
+
+                    $notificationList.empty();
+
+                    if (response.count > 0) {
+                        response.notifications.forEach(function (notif) {
+                            $notificationList.append(`<li><a class="dropdown-item" href="#">${notif.notifikasi}</a></li>`);
+                        });
+
+                        // Jika updateBadge = true (saat halaman load atau dropdown dibuka)
+                        if (updateBadge) {
+                            $notificationBadge.text(response.count).show();
+                        }
+                    } else {
+                        $notificationList.append('<li class="dropdown-item text-muted">Tidak ada notifikasi</li>');
+                        $notificationBadge.hide();
+                    }
+                },
+                error: function () {
+                    $("#notification-list").html('<li class="dropdown-item text-danger">Gagal memuat notifikasi</li>');
+                }
+            });
+        }
+
+        // Panggil fungsi loadNotifications() saat halaman dimuat
+        loadNotifications(true);
+
+        // Memuat notifikasi saat dropdown diklik
+        $("#navbarDropdown").on("click", function () {
+            loadNotifications(false); // Tidak perlu update badge lagi
+
+            $.post("/notifications/read", {_token: "{{ csrf_token() }}"}, function () {
+                $("#notification-count").hide();
+            });
+        });
+    });
+</script>
 </body>
 
 </html>

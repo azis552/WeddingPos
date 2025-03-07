@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TransaksiController;
 use App\Models\Barang;
 use App\Models\Transaksi;
@@ -58,4 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/laporan', [TransaksiController::class, 'laporanPost'])->name('cetakLaporan');
     Route::post('/cariLaporan', [TransaksiController::class, 'cariLaporan'])->name('cariLaporan');
     Route::get('/cekPembayaran/{id}', [TransaksiController::class, 'cekPembayaran'])->name('cekPembayaran');
+    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+    Route::post('/notifications/read', [NotificationController::class, 'readNotifications']);
+    Route::post('/notifications/store', [NotificationController::class, 'storeNotification']);
 });
