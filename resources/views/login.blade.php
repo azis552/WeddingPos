@@ -29,15 +29,31 @@
                                             {{ session('success') }}
                                         </div>
                                     @endif
+
+                                    @if ($errors->any())
+                                        <div class="alert alert-danger">
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
+
+                                    @if (session('error'))
+                                        <div class="alert alert-danger">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif
                                     <form action="{{ route('login.post') }}" method="POST">
                                         @csrf
                                         <div class="form-floating mb-3">
-                                            <input class="form-control" id="inputEmail" name="email" type="email"
+                                            <input class="form-control" id="inputEmail" value="{{ old('email') }}" name="email" type="email"
                                                 placeholder="name@example.com" />
                                             <label for="inputEmail">Email address</label>
                                         </div>
                                         <div class="form-floating mb-3">
-                                            <input class="form-control" id="inputPassword" name="password" type="password"
+                                            <input class="form-control" id="inputPassword" value="{{ old('password') }}" name="password" type="password"
                                                 placeholder="Password" />
                                             <label for="inputPassword">Password</label>
                                         </div>

@@ -99,7 +99,7 @@ class AuthController extends Controller
         }
         else
         {
-            return redirect()->route('login')->with('error', 'Login Gagal');
+            return redirect()->route('login')->with('error', 'Login Gagal Cek Email dan Password');
         }
     }
 
