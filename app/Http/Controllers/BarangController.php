@@ -63,6 +63,7 @@ class BarangController extends Controller
                     'harga' => $request->harga,
                     'deskripsi' => $request->deskripsi,
                     'foto' => $nama_foto,
+                    'stok' => $request->stok
                 ]);
                 return redirect()->route('barang.index')->with('success', 'Data Berhasil Diubah');
             }
@@ -73,10 +74,19 @@ class BarangController extends Controller
                 'name' => $request->name,
                 'harga' => $request->harga,
                 'deskripsi' => $request->deskripsi,
+                'stok' => $request->stok
             ]);
             return redirect()->route('barang.index')->with('success', 'Data Berhasil Diubah');
         }
 
+    }
+    public function updateStok(Request $request, $id)
+    {
+        $barang = Barang::find($id);
+        $barang->update([
+            'stok' => $barang->stok + $request->stok
+        ]);
+        return redirect()->route('barang.index')->with('success', 'Stok Berhasil Diubah');
     }
 
     public function destroy($id)

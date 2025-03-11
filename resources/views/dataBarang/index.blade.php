@@ -96,7 +96,7 @@
                                     <label for="inputEmail">Harga Barang</label>
                                 </div>
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" name="stok" id="stok" type="text"
+                                    <input class="form-control" name="stok" id="stokEdit" type="text"
                                         placeholder="Stok Harga" />
                                     <label for="inputEmail">Stok Barang</label>
                                 </div>
@@ -112,6 +112,38 @@
                                 </div>
                                 <div class="form-group mb-3">
                                     <img src="" id="fotoEdit" alt="Foto Barang" style="width: 100px; height: 100px; object-fit: cover">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="updateFormStok" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Stok Barang</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card shadow-lg border-0 rounded-lg">
+                        <div class="card-body">
+
+                            <form action="{{ route('barang.update.stok', ':id') }}" enctype="multipart/form-data" id="update-form-stok" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="" id="idEdit">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" name="stok" id="stokEditStok " type="text"
+                                        placeholder="Stok Harga" />
+                                    <label for="inputEmail">Stok Barang</label>
                                 </div>
                         </div>
                     </div>
@@ -166,9 +198,14 @@
                                     <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal"
                                         data-bs-target="#updateForm" data-id="{{ $barang->id }}"
                                         data-foto="{{ $barang->foto }}" data-name="{{ $barang->name }}"
+                                        data-stok="{{ $barang->stok }}"
                                         data-harga="{{ $barang->harga }}" data-deskripsi="{{ $barang->deskripsi }}"
                                         >
                                         Edit
+                                    </button>
+                                    <button type="button" class="btn btn-success me-2" data-bs-toggle="modal"
+                                        data-bs-target="#updateFormStok" data-id="{{ $barang->id }}">
+                                        Update Stok
                                     </button>
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
@@ -210,6 +247,7 @@
                     var harga = button.data('harga');
                     var deskripsi = button.data('deskripsi');
                     var foto = button.data('foto');
+                    var stok = button.data('stok');
                     var modal = $(this);
                     var action = modal.find('#update-form').attr('action').replace(':id', id);
                     modal.find('#update-form').attr('action', action);
@@ -217,8 +255,18 @@
                     modal.find('#nameEdit').val(name);
                     modal.find('#hargaEdit').val(harga);
                     modal.find('#deskripsiEdit').val(deskripsi);
+                    modal.find('#stokEdit').val(stok);
                     modal.find('#fotoEdit').attr('src', "{{ asset('storage/images/') }}/" + foto);
                    
+                });
+
+                $('#updateFormStok').on('show.bs.modal', function(event) {
+                    var button = $(event.relatedTarget);
+                    var id = button.data('id');
+                    var modal = $(this);
+                    var action = modal.find('#update-form-stok').attr('action').replace(':id', id);
+                    modal.find('#update-form-stok').attr('action', action);
+                    modal.find('#idEditStok').val(id);
                 });
 
             });
